@@ -21,7 +21,10 @@ else
   fi
   tmp=$(mktemp -d)
   trap 'rm -rf "$tmp"' EXIT
-  git clone -q --depth 1 --branch "$ref" "https://github.com/$template.git" "$tmp/t" || { echo "cannot fetch $template at $ref"; exit 2; }
+  # Git Bash on Windows: native git needs a Windows path for the same folder.
+  gitdir="$tmp"
+  if command -v cygpath >/dev/null 2>&1; then gitdir=$(cygpath -m "$tmp"); fi
+  git -c advice.detachedHead=false clone -q --depth 1 --branch "$ref" "https://github.com/$template.git" "$gitdir/t" || { echo "cannot fetch $template at $ref"; exit 2; }
   src="$tmp/t"
 fi
 
