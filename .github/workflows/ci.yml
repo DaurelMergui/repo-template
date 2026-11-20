@@ -77,4 +77,9 @@ jobs:
         uses: docker://rhysd/actionlint:1.7.12
       - name: shellcheck
         run: shellcheck scripts/*.sh
-
+      - name: yamllint
+        run: |
+          python3 -m pip install --quiet yamllint==1.38.0
+          yamllint -c .yamllint.yml .
+      - name: markdownlint
+        run: npx --yes markdownlint-cli2@0.24.2 "**/*.md"
