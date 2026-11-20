@@ -1,0 +1,16 @@
+.editorconfig
+.gitattributes
+.github/PULL_REQUEST_TEMPLATE.md
+.github/ISSUE_TEMPLATE/bug.yml
+.github/ISSUE_TEMPLATE/config.yml
+.github/ISSUE_TEMPLATE/enhancement.yml
+.github/labels.yml
+.github/template-managed.txt
+.github/workflows/main-guard.yml
+.github/workflows/release.yml
+.github/workflows/template-drift.yml
+docs/agents/domain.md
+docs/agents/issue-tracker.md
+docs/agents/triage-labels.md
+scripts/sync-from-template.sh
+scripts/sync-labels.sh

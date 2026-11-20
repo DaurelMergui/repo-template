@@ -43,3 +43,22 @@ jobs:
           test ! -d flavours
           if grep -rq '@OWNER' .github/CODEOWNERS; then echo "OWNER placeholder left"; exit 1; fi
           grep -q '"name": "windows-smoke"' package.json
+
+  drift-script:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: sync-from-template reports, detects and repairs drift
+        run: |
+          T="$PWD"
+          work=$(mktemp -d)
+          cp -r "$T"/. "$work"/
+          cd "$work"
+          rm -rf .git
+          TEMPLATE_DIR="$T" bash scripts/sync-from-template.sh
+          echo "# local edit" >> .github/labels.yml
+          rm docs/agents/domain.md
+          if TEMPLATE_DIR="$T" bash scripts/sync-from-template.sh; then echo "drift was not detected"; exit 1; fi
+          TEMPLATE_DIR="$T" bash scripts/sync-from-template.sh --apply
+          TEMPLATE_DIR="$T" bash scripts/sync-from-template.sh
+
