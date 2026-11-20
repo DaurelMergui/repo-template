@@ -1,0 +1,16 @@
+name: Enhancement
+description: Enhancement report
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome that counts as done
+    validations:
+      required: true

@@ -1,0 +1,25 @@
+name: main-guard
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Commit on main must come from a pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          parents=$(gh api "repos/${{ github.repository }}/commits/${{ github.sha }}" --jq '.parents | length')
+          if [ "$parents" -eq 0 ]; then echo "root commit, skipping"; exit 0; fi
+          n=$(gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/pulls" --jq 'length')
+          if [ "$n" -eq 0 ]; then
+            echo "::error::Direct push to main detected (no pull request for ${{ github.sha }}). Detection only; on free private repos this cannot be blocked."
+            exit 1
+          fi

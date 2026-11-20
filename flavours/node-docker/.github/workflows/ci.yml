@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  structure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Required files exist
+        run: |
+          missing=0
+          for f in README.md AGENTS.md GLOSSARY.md LICENSE docs/adr/INDEX.md .github/CODEOWNERS; do
+            [ -f "$f" ] || { echo "missing: $f"; missing=1; }
+          done
+          exit $missing
+
+  build-test-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm install --package-lock-only --ignore-scripts && npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Test
+        run: npm test
+      - name: Build Docker image
+        run: docker build -t app:ci .
+      - name: Smoke test image
+        run: |
+          docker run -d --name smoke -p 3000:3000 app:ci
+          for i in $(seq 1 10); do
+            if curl -sf http://localhost:3000/health; then
+              echo "health check passed"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "health check failed"
+          docker logs smoke
+          exit 1
+      - name: Cleanup
+        if: always()
+        run: docker rm -f smoke || true

@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  structure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Required files exist
+        run: |
+          missing=0
+          for f in README.md AGENTS.md GLOSSARY.md LICENSE docs/adr/INDEX.md .github/CODEOWNERS; do
+            [ -f "$f" ] || { echo "missing: $f"; missing=1; }
+          done
+          exit $missing
