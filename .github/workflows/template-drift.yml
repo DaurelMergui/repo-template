@@ -1,0 +1,42 @@
+name: Template drift
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  drift:
+    # The template itself has nothing to compare against.
+    if: github.repository != 'DaurelMergui/repo-template'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compare with template
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set +e
+          bash scripts/sync-from-template.sh > drift.txt 2>&1
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+          cat drift.txt
+      - name: Open an issue when drifted
+        if: steps.check.outputs.code == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          title="Template drift detected"
+          open=$(gh issue list --state open --search "$title in:title" --json number --jq length)
+          if [ "$open" -eq 0 ]; then
+            gh issue create --title "$title" --label needs-triage --body-file drift.txt
+          else
+            echo "drift issue already open"
+          fi
+      - name: Fail on fetch errors
+        if: steps.check.outputs.code == '2'
+        run: exit 1

@@ -41,5 +41,10 @@ Every repo created from this template follows these rules. Words in bold are def
 ## 8. Throwaway repos
 - Repos made only to test the template are named `<name>-smoke-test`. The agent token cannot delete repos (least privilege), so archive them when finished: `gh repo archive <owner>/<name> --yes`. The operator deletes them in the GitHub UI.
 
-## 9. Definition of done for a new repo
+## 9. Staying in sync
+- `.github/template-managed.txt` lists the files every repo keeps identical to the template (labels, workflows, issue and PR templates, `docs/agents/`, helper scripts). `AGENTS.md`, `GLOSSARY.md`, `CODEOWNERS` and flavour files are the repo's own.
+- `bash scripts/sync-from-template.sh` reports drift against the latest template release (exit 1 on drift); `--apply` overwrites drifted files, then open a PR.
+- `template-drift.yml` runs it weekly and opens a `needs-triage` issue when a repo has drifted. Releases are how template changes reach repos: tag a release, then run the script.
+
+## 10. Definition of done for a new repo
 The repo was created from the template, `scripts/init.sh` was run, labels exist, CI is green on `main`, and the first ADR is recorded.
