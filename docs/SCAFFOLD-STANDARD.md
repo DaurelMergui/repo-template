@@ -12,6 +12,7 @@ Every repo created from this template follows these rules. Words in bold are def
 - `main` is always releasable. Nobody, human or agent, commits to it directly.
 - All changes arrive by pull request. Only the **Operator** merges.
 - Public repos: branch protection requires a PR and passing CI, and applies to admins too (so an agent using the operator token cannot push to `main`). Required approvals are 0 because a sole owner cannot approve their own PR; the operator's merge is the approval.
+- `main-guard` skips root commits (no parent), which exist only when a repo is first created.
 - Private repos on a free plan cannot use branch protection. The `main-guard` workflow detects direct pushes to `main` and fails; `AGENTS.md` forbids them. Upgrade to GitHub Pro to enforce.
 
 ## 3. Issues and labels
@@ -37,5 +38,8 @@ Every repo created from this template follows these rules. Words in bold are def
 - Agents authenticate with the operator's token (ADR in the shared project). Attribution comes from commit trailers and `agent:<name>` labels.
 - Agents follow `AGENTS.md`. Context budget: 200k tokens, handoff at about 100k.
 
-## 8. Definition of done for a new repo
+## 8. Throwaway repos
+- Repos made only to test the template are named `<name>-smoke-test`. The agent token cannot delete repos (least privilege), so archive them when finished: `gh repo archive <owner>/<name> --yes`. The operator deletes them in the GitHub UI.
+
+## 9. Definition of done for a new repo
 The repo was created from the template, `scripts/init.sh` was run, labels exist, CI is green on `main`, and the first ADR is recorded.
