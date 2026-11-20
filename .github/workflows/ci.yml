@@ -21,3 +21,25 @@ jobs:
             [ -f "$f" ] || { echo "missing: $f"; missing=1; }
           done
           exit $missing
+
+  windows-scripts:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scripts have LF line endings
+        run: |
+          if grep -rlI $'' scripts; then echo "CRLF found in scripts"; exit 1; fi
+      - name: Scripts parse
+        run: |
+          for f in scripts/*.sh; do bash -n "$f" && echo "ok $f"; done
+      - name: apply-flavour and init work on Windows
+        run: |
+          bash scripts/apply-flavour.sh node-docker
+          bash scripts/init.sh windows-smoke DaurelMergui
+          test ! -d docs/template-decisions
+          test ! -d flavours
+          if grep -rq '@OWNER' .github/CODEOWNERS; then echo "OWNER placeholder left"; exit 1; fi
+          grep -q '"name": "windows-smoke"' package.json
