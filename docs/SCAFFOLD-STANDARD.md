@@ -19,6 +19,7 @@ Every repo created from this template follows these rules. Words in bold are def
 - State labels: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`.
 - Type labels: `bug`, `enhancement`. Owner labels: `agent:<name>`.
 - New issues start `needs-triage`.
+- `docs/agents/` configures the engineering skills (tracker, triage labels, domain docs). Wayfinder labels (`wayfinder:map`, `wayfinder:<type>`) exist for large plans.
 
 ## 4. Continuous integration
 - `ci.yml` runs on every pull request and on pushes to `main`. The base job checks the repo structure; a **Flavour** replaces or extends it with lint, test and build.

@@ -11,3 +11,8 @@
 - {name: "agent:finance", color: 5319e7, description: Owned by finance}
 - {name: "agent:researcher", color: 5319e7, description: Owned by researcher}
 - {name: "agent:content", color: 5319e7, description: Owned by content}
+- {name: "wayfinder:map", color: 0052cc, description: Wayfinder map issue}
+- {name: "wayfinder:research", color: c5def5, description: Wayfinder decision ticket - research}
+- {name: "wayfinder:prototype", color: c5def5, description: Wayfinder decision ticket - prototype}
+- {name: "wayfinder:grilling", color: c5def5, description: Wayfinder decision ticket - grilling}
+- {name: "wayfinder:task", color: c5def5, description: Wayfinder decision ticket - task}
