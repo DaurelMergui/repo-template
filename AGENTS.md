@@ -16,6 +16,8 @@ Rules for every agent working in this repo.
 - Issues on GitHub are the tracker. Use the triage labels (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`) and tag your issues `agent:<name>`.
 - Add a `Co-authored-by` or `Agent: <name>` trailer to commits so attribution survives the shared token.
 - Run lint and tests before opening a PR; show the output in the PR.
+- Verification commands (lint, tests, builds) must print their output and exit code. Never pipe them through `tail`, `head` or `grep`, and never report a check as passed unless you saw it pass.
+- Before pushing to a branch that has an open PR, run `gh pr view --json state`. If it is `MERGED` or `CLOSED`, start a new branch from `main`. Open the PR only when the branch is final.
 
 ## Safety
 - No secrets in code, commits, issues or chat. Use GitHub Actions secrets or the operator's secret store.
