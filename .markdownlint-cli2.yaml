@@ -1,0 +1,13 @@
+config:
+  default: true
+  MD013: false   # line length: prose is written unwrapped
+  MD022:
+    lines_below: 0   # compact style: a list may follow its heading directly
+  MD032: false   # same compact style
+  MD033: false   # inline HTML allowed
+  MD041: false   # first line need not be a heading
+  MD060: false   # table pipe spacing style
+ignores:
+  - node_modules/**
+  - "**/node_modules/**"
+  - docs/agents/**   # copied from the upstream skill templates
