@@ -43,6 +43,13 @@ jobs:
           test ! -d flavours
           if grep -rq '@OWNER' .github/CODEOWNERS; then echo "OWNER placeholder left"; exit 1; fi
           grep -q '"name": "windows-smoke"' package.json
+      - name: sync-from-template can fetch a release (exit 0 or 1, never 2)
+        run: |
+          set +e
+          bash scripts/sync-from-template.sh v0.2.0
+          code=$?
+          echo "exit $code"
+          [ "$code" -le 1 ]
 
   drift-script:
     runs-on: ubuntu-latest
