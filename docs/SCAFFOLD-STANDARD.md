@@ -11,7 +11,7 @@ Every repo created from this template follows these rules. Words in bold are def
 ## 2. Branches and merging
 - `main` is always releasable. Nobody, human or agent, commits to it directly.
 - All changes arrive by pull request. Only the **Operator** merges.
-- Public repos: branch protection requires a PR, one approval and passing CI.
+- Public repos: branch protection requires a PR and passing CI, and applies to admins too (so an agent using the operator token cannot push to `main`). Required approvals are 0 because a sole owner cannot approve their own PR; the operator's merge is the approval.
 - Private repos on a free plan cannot use branch protection. The `main-guard` workflow detects direct pushes to `main` and fails; `AGENTS.md` forbids them. Upgrade to GitHub Pro to enforce.
 
 ## 3. Issues and labels
