@@ -7,4 +7,5 @@ grep -rl -e 'OWNER' -e 'PROJECT' --exclude-dir=.git --exclude-dir=node_modules -
   sed -i -e "s/@OWNER/@$owner/g" -e "s/^# PROJECT$/# $name/" "$f"
 done
 sed -i "s/\"name\": \"project\"/\"name\": \"$name\"/" package.json 2>/dev/null || true
+rm -rf docs/template-decisions
 echo "initialised $name for $owner"
