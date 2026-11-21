@@ -83,7 +83,9 @@ jobs:
           persist-credentials: false
       - name: actionlint (template and flavour workflows, with shellcheck)
         run: |
-          docker run --rm -v "$PWD:/repo" -w /repo             rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667             -color .github/workflows/*.yml flavours/*/.github/workflows/*.yml
+          docker run --rm -v "$PWD:/repo" -w /repo \
+            rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667 \
+            -color .github/workflows/*.yml flavours/*/.github/workflows/*.yml
       - name: shellcheck
         run: shellcheck scripts/*.sh flavours/*/scripts/*.sh
       - name: yamllint
