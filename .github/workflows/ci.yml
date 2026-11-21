@@ -110,6 +110,16 @@ jobs:
           docker run --rm -v "$PWD:/repo" -w /repo \
             ghcr.io/zizmorcore/zizmor:1.32.0@sha256:3014cc8f68f663935f69b3c3e0e41f5ce102b268d97db13db0f62208747f860d \
             --offline .
+      - name: pinact (every action pinned to a full SHA whose version comment is true)
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          # Release binary, not an image: pinact publishes no container image. The checksum pins the exact build.
+          gh release download v5.0.2 -R suzuki-shunsuke/pinact -p pinact_linux_amd64.tar.gz
+          echo "7f003d8f51e984c2264d2009d430e3e0e87ae404a0e2dc2a9a277b0f731bf5b7  pinact_linux_amd64.tar.gz" | sha256sum -c -
+          tar -xzf pinact_linux_amd64.tar.gz pinact
+          ./pinact run --check --verify
+          rm -f pinact pinact_linux_amd64.tar.gz
       - name: hadolint (Dockerfile)
         run: |
           docker run --rm -i \

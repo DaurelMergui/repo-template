@@ -1,0 +1,8 @@
+version: 3
+files:
+  - pattern: .github/workflows/*.yml
+  - pattern: flavours/*/.github/workflows/*.yml
+# docker:// steps are pinned by image digest, which pinact cannot rewrite; leave them alone.
+ignore_actions:
+  - name: docker://.*
+    ref: ".*"

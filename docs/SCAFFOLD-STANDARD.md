@@ -27,6 +27,8 @@ Every repo created from this template follows these rules. Words in bold are def
 - `ci.yml` runs on every pull request and on pushes to `main`. The base job checks the repo structure; a **Flavour** replaces or extends it with lint, test and build.
 - Workflow `permissions` default to `contents: read`; widen per job only.
 - Third-party actions are pinned to a full commit SHA with the version in a trailing comment (`uses: owner/action@<sha> # v1.2.3`). Tags can be force-moved; a SHA cannot. Docker actions are pinned by digest.
+- `pinact` runs in the template's `security` job (`.pinact.yaml`): it fails when an action is not pinned to a full SHA, or when the version comment does not name the version that SHA is. It runs as a checksum-verified release binary because pinact publishes no container image. Adopted repos may copy the step and `.pinact.yaml`.
+- `snyk/agent-scan` was evaluated and not adopted: it needs a `SNYK_TOKEN` secret, sends the scanned agent files to Snyk's service, has a daily free-tier limit, and the CLI output format is changing between 0.5 and 0.6+. Revisit if a repo ships agent skills or MCP configs.
 - `.github/dependabot.yml` keeps those pins, and the flavour's npm, uv and Docker dependencies, current with weekly PRs. A flavour ships its own `dependabot.yml`; a repo with no flavour keeps only the `github-actions` entry (delete the `/flavours/...` entries).
 
 ## 5. Releases
