@@ -27,7 +27,7 @@ Every repo created from this template follows these rules. Words in bold are def
 - `ci.yml` runs on every pull request and on pushes to `main`. The base job checks the repo structure; a **Flavour** replaces or extends it with lint, test and build.
 - Workflow `permissions` default to `contents: read`; widen per job only.
 - Third-party actions are pinned to a full commit SHA with the version in a trailing comment (`uses: owner/action@<sha> # v1.2.3`). Tags can be force-moved; a SHA cannot. Docker actions are pinned by digest.
-- `.github/dependabot.yml` keeps those pins, and npm and Docker dependencies, current with weekly PRs. A flavour ships its own `dependabot.yml`; a repo with no flavour keeps only the `github-actions` entry (delete the `/flavours/...` entries).
+- `.github/dependabot.yml` keeps those pins, and the flavour's npm, uv and Docker dependencies, current with weekly PRs. A flavour ships its own `dependabot.yml`; a repo with no flavour keeps only the `github-actions` entry (delete the `/flavours/...` entries).
 
 ## 5. Releases
 - Semver tags `vMAJOR.MINOR.PATCH`. Pushing a tag creates a GitHub Release with notes generated from merged PR titles.
