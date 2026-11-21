@@ -50,6 +50,8 @@ jobs:
         with:
           version: "0.13.9"
           enable-cache: false
+      - name: Python and uv versions agree (Dockerfile, .python-version, pyproject, setup-uv)
+        run: bash scripts/check-versions.sh
       - name: Lockfile is up to date
         run: uv lock --check
       - run: uv sync --frozen
