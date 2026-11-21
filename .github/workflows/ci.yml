@@ -84,7 +84,7 @@ jobs:
       - name: actionlint
         uses: docker://rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
       - name: shellcheck
-        run: shellcheck scripts/*.sh
+        run: shellcheck scripts/*.sh flavours/*/scripts/*.sh
       - name: yamllint
         run: |
           python3 -m pip install --quiet yamllint==1.38.0
@@ -191,6 +191,8 @@ jobs:
         with:
           version: "0.13.9"
           enable-cache: false
+      - name: Python and uv versions agree (Dockerfile, .python-version, pyproject, setup-uv)
+        run: bash scripts/check-versions.sh
       - name: Lockfile is up to date
         run: uv lock --check
       - run: uv sync --frozen
@@ -202,6 +204,8 @@ jobs:
         run: uv run alembic upgrade head
       - name: Test
         run: uv run pytest
+      - name: test-in-docker runs the suite without local Python
+        run: bash scripts/test-in-docker.sh -q
       - name: Build Docker image
         run: docker build -t app:ci .
       - name: Trivy image scan (CVEs in OS packages and libraries; HIGH/CRITICAL with a fix available)
