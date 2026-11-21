@@ -13,6 +13,7 @@ Every repo created from this template follows these rules. Words in bold are def
 - All changes arrive by pull request. Only the **Operator** merges.
 - Public repos: branch protection requires a PR and passing CI, and applies to admins too (so an agent using the operator token cannot push to `main`). Required approvals are 0 because a sole owner cannot approve their own PR; the operator's merge is the approval.
 - `main-guard` skips root commits (no parent), which exist only when a repo is first created.
+- Merged PR branches are deleted automatically (`delete_branch_on_merge`, set by `scripts/repo-settings.sh`). Do not push to a branch after its PR merged; start a new one.
 - Private repos on a free plan cannot use branch protection. The `main-guard` workflow detects direct pushes to `main` and fails; `AGENTS.md` forbids them. Upgrade to GitHub Pro to enforce.
 
 ## 3. Issues and labels
@@ -48,4 +49,4 @@ Every repo created from this template follows these rules. Words in bold are def
 - `template-drift.yml` runs it weekly and opens a `needs-triage` issue when a repo has drifted. Releases are how template changes reach repos: tag a release, then run the script.
 
 ## 10. Definition of done for a new repo
-The repo was created from the template, `scripts/init.sh` was run, labels exist, CI is green on `main`, and the first ADR is recorded.
+The repo was created from the template, `scripts/init.sh` was run, labels exist, `scripts/repo-settings.sh` has run, CI is green on `main`, and the first ADR is recorded.
