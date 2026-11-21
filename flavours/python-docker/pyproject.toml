@@ -22,6 +22,8 @@ dev = [
 [tool.uv]
 # An application run from its source tree, not an installable package.
 package = false
+# Do not resolve packages published in the last 7 days (supply-chain cooldown, as in dependabot.yml).
+exclude-newer = "7 days"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
