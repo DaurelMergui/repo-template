@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Required files exist
         run: |
           missing=0
@@ -29,6 +31,8 @@ jobs:
         shell: bash
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: Scripts have LF line endings
         run: |
           if git ls-files --eol scripts | grep -q 'w/crlf'; then echo "CRLF found in scripts"; exit 1; fi
@@ -55,6 +59,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: sync-from-template reports, detects and repairs drift
         run: |
           T="$PWD"
@@ -73,6 +79,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
       - name: actionlint
         uses: docker://rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
       - name: shellcheck
@@ -83,3 +91,37 @@ jobs:
           yamllint -c .yamllint.yml .
       - name: markdownlint
         run: npx --yes markdownlint-cli2@0.24.2 "**/*.md"
+
+  # Not a required check until it has run clean for a week.
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: gitleaks (secrets, full history)
+        run: |
+          docker run --rm -v "$PWD:/repo" -w /repo \
+            ghcr.io/gitleaks/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f \
+            git --no-banner --redact --verbose /repo
+      - name: zizmor (workflow security)
+        run: |
+          docker run --rm -v "$PWD:/repo" -w /repo \
+            ghcr.io/zizmorcore/zizmor:1.32.0@sha256:3014cc8f68f663935f69b3c3e0e41f5ce102b268d97db13db0f62208747f860d \
+            --offline .
+      - name: hadolint (Dockerfile)
+        run: |
+          docker run --rm -i \
+            hadolint/hadolint:v2.15.1@sha256:32dac94127fd60b7b7e3fbfc65e1383b9b5e25c9bfd7b8536de7a539fe68a12d \
+            < flavours/node-docker/Dockerfile
+      - name: osv-scanner (dependency vulnerabilities)
+        run: |
+          set +e
+          docker run --rm -v "$PWD:/repo" -w /repo \
+            ghcr.io/google/osv-scanner:v2.7.1@sha256:a70ffffc2bfd33482953e5d6b64c6fcdb30239717a07b0f0d3ab2859ce3e4cde \
+            scan source -r /repo
+          rc=$?
+          # 128 = no lockfiles found; the template ships none (flavour lockfiles are generated per repo)
+          if [ "$rc" -eq 128 ]; then echo "no lockfiles to scan"; exit 0; fi
+          exit "$rc"
