@@ -1,0 +1,18 @@
+# Replaces the base dependabot.yml when the node-docker flavour is applied.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    labels: [enhancement, agent:zeus]
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    labels: [enhancement, agent:zeus]
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: weekly
+    labels: [enhancement, agent:zeus]
