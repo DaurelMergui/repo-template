@@ -125,3 +125,24 @@ jobs:
           # 128 = no lockfiles found; the template ships none (flavour lockfiles are generated per repo)
           if [ "$rc" -eq 128 ]; then echo "no lockfiles to scan"; exit 0; fi
           exit "$rc"
+
+  flavour-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Image builds, runs as non-root, answers /health, healthcheck command passes
+        run: |
+          docker build -t flavour-test flavours/node-docker
+          docker run -d --name flavour-test flavour-test
+          for _ in 1 2 3 4 5 6 7 8 9 10; do
+            docker exec flavour-test wget -qO- localhost:3000/health && break
+            sleep 1
+          done
+          docker exec flavour-test wget -qO- localhost:3000/health
+          uid="$(docker exec flavour-test id -u)"
+          echo "uid=$uid"
+          test "$uid" != "0"
+          docker exec flavour-test node -e "$(docker inspect --format '{{index .Config.Healthcheck.Test 3}}' flavour-test)"
+          echo "healthcheck command exit 0"
