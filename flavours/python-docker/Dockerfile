@@ -1,10 +1,19 @@
 FROM ghcr.io/astral-sh/uv:0.13.9@sha256:d3b601f0c7b118bc1753febf7c41cc80981df678445e0254284eecf84db79a7d AS uv
 
 FROM python:3.15-slim@sha256:65a65fc7b30b06cb6df4930fd4650697cb23f4c2698ab81fc87e4b031bc36928
+# Base images lag Debian security fixes; pick them up at build time.
+# hadolint ignore=DL3005
+RUN apt-get update \
+    && apt-get -y upgrade \
+    && rm -rf /var/lib/apt/lists/*
+# The service runs from a uv-built venv, not the system pip; the pip in the base image
+# vendors msgpack, urllib3 and setuptools copies that carry their own CVEs.
+RUN python -m pip uninstall -y pip
 COPY --from=uv /uv /usr/local/bin/uv
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     UV_LINK_MODE=copy \
+    UV_NO_CACHE=1 \
     UV_PYTHON_DOWNLOADS=never \
     PATH="/srv/app/.venv/bin:$PATH"
 WORKDIR /srv/app
