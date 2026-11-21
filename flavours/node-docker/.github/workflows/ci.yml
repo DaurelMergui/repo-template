@@ -50,7 +50,7 @@ jobs:
         run: |
           docker run --rm -v "$PWD:/work" -w /work \
             ghcr.io/aquasecurity/trivy:0.76.2@sha256:8f6bb947dbc528902e11f2f5be52f7b519f6a39d5d148f41166f2040499768fb \
-            config --exit-code 1 --severity HIGH,CRITICAL --no-progress .
+            config --exit-code 1 --severity HIGH,CRITICAL .
       - name: Smoke test image
         run: |
           docker run -d --name smoke -p 3000:3000 app:ci
