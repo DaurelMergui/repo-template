@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  structure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Required files exist
+        run: |
+          missing=0
+          for f in README.md AGENTS.md GLOSSARY.md LICENSE docs/adr/INDEX.md .github/CODEOWNERS; do
+            [ -f "$f" ] || { echo "missing: $f"; missing=1; }
+          done
+          exit $missing
+
+  build-test-lint:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres:16@sha256:3950ad7c3148ca2175ef1b6c36c9efbf78957ae8fbe8b3a5d7c35af50500382f
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+          POSTGRES_DB: app
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U app -d app"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      POSTGRES_HOST: localhost
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          version: "0.12.18"
+          enable-cache: false
+      - name: Lockfile is up to date
+        run: uv lock --check
+      - run: uv sync --frozen
+      - name: Lint
+        run: uv run ruff check .
+      - name: Format check
+        run: uv run ruff format --check .
+      - name: Migrations apply
+        run: uv run alembic upgrade head
+      - name: Test
+        run: uv run pytest
+      - name: Build Docker image
+        run: docker build -t app:ci .
+      - name: Image runs as non-root, answers /health, healthcheck command passes
+        run: |
+          docker run -d --name smoke app:ci
+          for _ in $(seq 1 15); do
+            docker exec smoke python -c "import urllib.request as u; u.urlopen('http://localhost:8000/health', timeout=2)" && break
+            sleep 1
+          done
+          docker exec smoke python -c "import urllib.request as u; print(u.urlopen('http://localhost:8000/health', timeout=2).read())"
+          uid="$(docker exec smoke id -u)"
+          echo "uid=$uid"
+          test "$uid" != "0"
+          docker exec smoke python -c "$(docker inspect --format '{{index .Config.Healthcheck.Test 3}}' smoke)"
+          echo "healthcheck command exit 0"
+      - name: Cleanup
+        if: always()
+        run: docker rm -f smoke || true

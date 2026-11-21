@@ -22,3 +22,24 @@ updates:
     cooldown:
       default-days: 7
     labels: [enhancement, agent:zeus]
+  - package-ecosystem: uv
+    directory: /flavours/python-docker
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    labels: [enhancement, agent:zeus]
+  - package-ecosystem: docker
+    directory: /flavours/python-docker
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    labels: [enhancement, agent:zeus]
+  - package-ecosystem: docker-compose
+    directory: /flavours/python-docker
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    labels: [enhancement, agent:zeus]
