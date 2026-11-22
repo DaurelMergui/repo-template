@@ -8,6 +8,7 @@
 .github/template-managed.txt
 .github/workflows/main-guard.yml
 .github/workflows/pin-freshness.yml
+.github/workflows/quality-gates.yml
 .github/workflows/release.yml
 .github/workflows/template-drift.yml
 docs/agents/domain.md
