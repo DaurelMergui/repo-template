@@ -1,0 +1,33 @@
+name: CodeQL
+
+# Static analysis of the GitHub Actions workflows (the template ships no application code of its own).
+# Free on public repos. Adopted private repos do not copy this file.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '41 4 * * 3'
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    # Template-only: private repos created from the template do not need it.
+    if: github.repository == 'DaurelMergui/repo-template'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: github/codeql-action/init@1bd86f2fdb4b86187fa4059f16f31a3202acc9ea # v4.39.4
+        with:
+          languages: actions
+      - uses: github/codeql-action/analyze@1bd86f2fdb4b86187fa4059f16f31a3202acc9ea # v4.39.4
+        with:
+          category: /language:actions
