@@ -25,6 +25,7 @@ gh_latest() { gh api "repos/$1/releases/latest" --jq .tag_name 2>/dev/null; }
 # shellcheck disable=SC2086
 images=$(grep -hoE "[a-z0-9./-]+/[a-z0-9._-]+:[v0-9][A-Za-z0-9._-]*@sha256:[0-9a-f]{64}" $files | sort -u)
 for ref in $images; do
+  ref="${ref#//}"
   path="${ref%%:*}"; path="${path#ghcr.io/}"
   tag="${ref#*:}"; tag="${tag%%@*}"
   report "$path" "$tag" "$(gh_latest "$path")"
