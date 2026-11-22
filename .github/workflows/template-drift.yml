@@ -7,10 +7,12 @@ on:
 
 permissions:
   contents: read
-  issues: write
 
 jobs:
   drift:
+    permissions:
+      contents: read
+      issues: write
     # The template itself has nothing to compare against.
     if: github.repository != 'DaurelMergui/repo-template'
     runs-on: ubuntu-latest

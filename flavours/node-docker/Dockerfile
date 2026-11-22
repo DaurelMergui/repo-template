@@ -1,4 +1,4 @@
-FROM node:26-alpine
+FROM node:26-alpine@sha256:6bd9ab43c0ec0190ca7b2d193906cb8b7edf6e7f4afa43ddeccd6452710bffb5
 # Pick up fixed OS packages (openssl, zlib) published after the base image was built.
 # The service does not need npm; the one bundled in the base image carries its own CVEs.
 RUN apk upgrade --no-cache \
