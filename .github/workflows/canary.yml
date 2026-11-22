@@ -40,10 +40,13 @@ jobs:
         run: |
           cd "$W"
           TEMPLATE_DIR="$T" bash scripts/sync-from-template.sh
-      - name: Local gates (scripts/check.sh) pass in adopted form
+      - name: Local gates (scripts/check.sh) pass in adopted form, none skipped
         run: |
           cd "$W"
-          bash scripts/check.sh
+          test -f .github/workflows/quality-gates.yml
+          bash scripts/check.sh | tee check.out
+          # pinact is the only gate that legitimately runs in CI only
+          if grep "skipped:" check.out | grep -v "runs in CI only"; then echo "a gate was skipped in adopted form"; exit 1; fi
       - name: Flavour image builds
         run: |
           cd "$W"
