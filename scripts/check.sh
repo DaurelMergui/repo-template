@@ -14,7 +14,7 @@ command -v docker >/dev/null || { echo "docker is required"; exit 2; }
 failed=()
 ran=0
 
-pin() { grep -hoE "[a-z0-9./-]*$1:[A-Za-z0-9._-]+@sha256:[0-9a-f]{64}" "$CI" | head -1; }
+pin() { grep -hoE "[a-z0-9./-]*$1:[A-Za-z0-9._-]+@sha256:[0-9a-f]{64}" "$CI" | head -1 | sed 's|^/*||'; }
 ver() { grep -hoE "$1[=@]+[0-9][0-9A-Za-z.]*" "$CI" | head -1 | sed -E 's/^[^=@]*[=@]+//'; }
 
 # gate <name> <command...>: runs the command, records the result.
