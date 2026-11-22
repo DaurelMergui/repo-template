@@ -1,0 +1,74 @@
+name: Canary
+
+# Monthly: pretend to adopt the template (apply a flavour, init, run the gates, build the image).
+# Catches rot that PR-triggered CI cannot see in a quiet month, and problems that only appear in adopted form.
+on:
+  schedule:
+    - cron: '17 6 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  adopt:
+    # Template-only: adopted repos do not need it.
+    if: github.repository == 'DaurelMergui/repo-template'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        flavour: [python-docker, node-docker]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Adopt the template in a scratch repo
+        run: |
+          T="$PWD"
+          W=$(mktemp -d)
+          git archive HEAD | tar -x -C "$W"
+          cd "$W"
+          git init -q
+          bash scripts/apply-flavour.sh "${{ matrix.flavour }}"
+          bash scripts/init.sh canary DaurelMergui
+          git add -A
+          git -c user.name=canary -c user.email=canary@example.com commit -qm canary
+          echo "W=$W" >> "$GITHUB_ENV"
+          echo "T=$T" >> "$GITHUB_ENV"
+      - name: Drift check is clean in adopted form
+        run: |
+          cd "$W"
+          TEMPLATE_DIR="$T" bash scripts/sync-from-template.sh
+      - name: Local gates (scripts/check.sh) pass in adopted form
+        run: |
+          cd "$W"
+          bash scripts/check.sh
+      - name: Flavour image builds
+        run: |
+          cd "$W"
+          docker build -t canary:test .
+      - name: Python version check
+        if: matrix.flavour == 'python-docker'
+        run: |
+          cd "$W"
+          bash scripts/check-versions.sh
+
+  report:
+    needs: adopt
+    if: failure()
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Open or update the canary issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          REPO: ${{ github.repository }}
+        run: |
+          title="Monthly canary failed"
+          echo "The monthly canary (adopt the template, run the gates, build the image) failed. Run: $RUN_URL" > body.md
+          n=$(gh issue list -R "$REPO" --state open --search "$title in:title" --json number --jq '.[0].number // empty')
+          if [ -n "$n" ]; then gh issue comment "$n" -R "$REPO" --body-file body.md; else gh issue create -R "$REPO" --title "$title" --body-file body.md; fi
